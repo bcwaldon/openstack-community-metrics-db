@@ -34,3 +34,8 @@ class API(object):
 
         return query.all()
 
+    def get_repositories(self):
+        return self.session.query(ocm.models.Repository).all()
+
+    def get_people(self):
+        return self.session.query(ocm.models.Person).all()
