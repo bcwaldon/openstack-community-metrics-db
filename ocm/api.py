@@ -1,7 +1,7 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-import ocm.models as models
+import ocm.models
 
 
 class API(object):
@@ -14,5 +14,23 @@ class API(object):
         session = maker()
         return session
 
-    def get_commits(self):
-       return self.session.query(models.Commit).all() 
+    def get_commits(self, author_id=None, repository_id=None, 
+            start=None, end=None):
+        query = self.session.query(ocm.models.Commit)
+        query = query.options(sqlalchemy.orm.joinedload('author'))
+
+        if author_id:
+            query = query.filter(ocm.models.Commit.author_id == author_id)
+        
+        if repository_id:
+            query = query.filter(
+                      ocm.models.Commit.repository_id == repository_id)
+        
+        if start:
+            query = query.filter(ocm.models.Commit.date >= start)
+
+        if end:
+            query = query.filter(ocm.models.Commit.date <= end)
+
+        return query.all()
+
