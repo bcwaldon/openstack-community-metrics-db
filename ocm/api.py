@@ -14,7 +14,7 @@ class API(object):
         session = maker()
         return session
 
-    def get_commits(self, author_id=None, repository_id=None, 
+    def get_commits(self, author_id=None, company_id=None, repository_id=None, 
             start=None, end=None):
         query = self.session.query(ocm.models.Commit)
         query = query.options(sqlalchemy.orm.joinedload('author'))
@@ -32,7 +32,13 @@ class API(object):
         if end:
             query = query.filter(ocm.models.Commit.date <= end)
 
-        return query.all()
+        commits = query.all()
+
+        if company_id:
+            commits = filter(lambda ci: company_id in \
+                    [co.id for co in ci.author.companies], commits)
+
+        return commits
 
     def get_repositories(self):
         return self.session.query(ocm.models.Repository).all()
